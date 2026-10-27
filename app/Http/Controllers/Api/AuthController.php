@@ -26,6 +26,14 @@ class AuthController extends Controller
             'role' => $validated['role'],
         ]);
 
+        if ($user->isPenyedia()) {
+            $user->organizationProfile()->firstOrCreate([
+                'user_id' => $user->id,
+            ], [
+                'organization_name' => $user->name,
+            ]);
+        }
+
         $token = $user->createToken('tandang-app')->plainTextToken;
 
         return response()->json([
@@ -61,8 +69,14 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $user = $request->user();
+
+        if ($user->isPenyedia()) {
+            $user->load('organizationProfile');
+        }
+
         return response()->json([
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 

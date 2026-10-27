@@ -14,7 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'penyedia' => \App\Http\Middleware\EnsureUserIsPenyedia::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (
@@ -30,4 +32,3 @@ return Application::configure(basePath: dirname(__DIR__))
             return null;
         });
     })->create();
-

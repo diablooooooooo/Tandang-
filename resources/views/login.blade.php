@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk | TANDANG</title>
@@ -14,7 +15,10 @@
 <body>
     <main class="container">
         <section class="welcome">
-            <div class="logo"><span>▥</span> TANDANG</div>
+<div class="logo">
+    <img src="{{ asset('images/LogoTandangputih.png') }}"
+         alt="Logo TANDANG">
+</div>
             <div class="intro">
                 <div class="eyebrow">Ruang tumbuh bersama</div>
                 <h1>Selamat datang<br>kembali.</h1>
@@ -33,7 +37,7 @@
 
                 <form id="loginForm">
                     <label for="email">Email</label>
-                    <input id="email" type="email" placeholder="nama@email.com" required>
+                    <input id="email" type="email" placeholder="ilham@email.com" required>
 
                     <label for="password">Kata sandi</label>
                     <input id="password" type="password" placeholder="Minimal 8 karakter" required>

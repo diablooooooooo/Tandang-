@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -46,5 +47,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the organization profile associated with the user.
+     */
+    public function organizationProfile(): HasOne
+    {
+        return $this->hasOne(OrganizationProfile::class);
+    }
+
+    /**
+     * Check if user is a project provider.
+     */
+    public function isPenyedia(): bool
+    {
+        return $this->role === 'penyedia_proyek';
+    }
+
+    /**
+     * Check if user is young talent.
+     */
+    public function isTalenta(): bool
+    {
+        return $this->role === 'talenta_muda';
     }
 }

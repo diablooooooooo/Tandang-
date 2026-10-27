@@ -35,13 +35,20 @@
             overflow: hidden;
         }
 
-        .logo {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
+.logo {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+}
 
-        .logo span { color: #ffd166; }
+.logo img {
+    display: block;
+    width: 180px;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
 
         .intro {
             position: relative;
@@ -280,7 +287,12 @@
 <body>
     <main class="container">
         <section class="welcome">
-            <div class="logo"><span>▥</span> TANDANG</div>
+
+<div class="logo">
+    <img src="{{ asset('images/LogoTandangputih.png') }}"
+         alt="Logo TANDANG">
+</div>
+
 
             <div class="intro">
                 <div class="eyebrow">Ruang tumbuh bersama</div>
@@ -323,12 +335,12 @@
 
                     <div class="field">
                         <label for="name">Nama lengkap</label>
-                        <input id="name" name="name" type="text" placeholder="Contoh: Nara Putri" required autocomplete="name">
+                        <input id="name" name="name" type="text" placeholder="Contoh: ilham" required autocomplete="name">
                     </div>
 
                     <div class="field">
                         <label for="email">Email</label>
-                        <input id="email" name="email" type="email" placeholder="nama@email.com" required autocomplete="email">
+                        <input id="email" name="email" type="email" placeholder="ilham@gmail.com" required autocomplete="email">
                     </div>
 
                     <div class="field">
