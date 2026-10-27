@@ -275,4 +275,65 @@ class PenyediaProyekTest extends TestCase
             'organization_name' => 'Perusahaan B Baru',
         ]);
     }
+
+    public function test_penyedia_navbar_displays_circular_avatar_role_badge_and_dropdown_menu(): void
+    {
+        $penyedia = User::create([
+            'name' => 'Ahmad Subagyo Panjang Sekali Namanya',
+            'email' => 'ahmad@example.com',
+            'password' => 'secret123',
+            'role' => 'penyedia_proyek',
+        ]);
+        OrganizationProfile::create([
+            'user_id' => $penyedia->id,
+            'organization_name' => 'PT Makmur Sentosa Jaya Abadi',
+        ]);
+
+        $response = $this->actingAs($penyedia)->get('/penyedia/profil');
+
+        $response->assertStatus(200);
+        $response->assertSee('user-avatar-circle', false);
+        $response->assertSee('user-profile-role-badge', false);
+        $response->assertSee('Penyedia Proyek');
+        $response->assertSee('PT Makmur Sentosa Jaya Abadi');
+        $response->assertSee('user-dropdown-menu', false);
+        $response->assertSee(route('penyedia.profile'), false);
+        $response->assertSee(route('logout'), false);
+    }
+
+    public function test_talenta_navbar_displays_avatar_role_badge_and_dropdown_menu(): void
+    {
+        $talenta = User::create([
+            'name' => 'Rian Pratama',
+            'email' => 'rian@example.com',
+            'password' => 'secret123',
+            'role' => 'talenta_muda',
+        ]);
+
+        $response = $this->actingAs($talenta)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('user-avatar-circle', false);
+        $response->assertSee('user-profile-role-badge', false);
+        $response->assertSee('Talenta Muda');
+        $response->assertSee('Rian Pratama');
+        $response->assertSee('user-dropdown-menu', false);
+        $response->assertSee(route('dashboard'), false);
+        $response->assertSee(route('logout'), false);
+    }
+
+    public function test_dropdown_logout_action_successfully_logs_out_user(): void
+    {
+        $user = User::create([
+            'name' => 'User Logout Test',
+            'email' => 'logout@example.com',
+            'password' => 'secret123',
+            'role' => 'penyedia_proyek',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('logout'));
+
+        $response->assertRedirect('/login');
+        $this->assertGuest();
+    }
 }

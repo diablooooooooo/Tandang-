@@ -101,10 +101,74 @@
                     <input type="search" placeholder="Cari di TANDANG..." aria-label="Cari di TANDANG">
                 </div>
 
-                <button type="button" class="topbar-bell" aria-label="Notifikasi">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
-                    <span class="bell-dot"></span>
-                </button>
+                <div class="topbar-actions">
+                    <button type="button" class="topbar-bell" aria-label="Notifikasi">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+                        <span class="bell-dot"></span>
+                    </button>
+
+                    <div class="topbar-user-dropdown" id="userProfileDropdown">
+                        <button type="button" class="user-profile-btn" id="userProfileToggle" aria-expanded="false" aria-haspopup="true">
+                            <div class="user-avatar-circle">
+                                <span>{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                            </div>
+                            <div class="user-profile-info">
+                                <span class="user-profile-name" title="{{ $user->name }}">{{ $user->name }}</span>
+                                <span class="user-profile-role-badge">
+                                    {{ $user->role === 'penyedia_proyek' ? 'Penyedia Proyek' : 'Talenta Muda' }}
+                                </span>
+                            </div>
+                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        <div class="user-dropdown-menu" id="userDropdownMenu" role="menu">
+                            <div class="dropdown-header">
+                                <div class="dropdown-header-avatar">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                                <div class="dropdown-header-details">
+                                    <strong class="dropdown-user-name" title="{{ $user->name }}">{{ $user->name }}</strong>
+                                    <span class="dropdown-user-email" title="{{ $user->email }}">{{ $user->email }}</span>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            @if ($user->role === 'penyedia_proyek')
+                                <a href="{{ route('penyedia.profile') }}" class="dropdown-item" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                    <span>Profil Organisasi</span>
+                                </a>
+                            @else
+                                <a href="{{ route('dashboard') }}" class="dropdown-item" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/>
+                                    </svg>
+                                    <span>Beranda</span>
+                                </a>
+                            @endif
+
+                            <div class="dropdown-divider"></div>
+
+                            <form action="{{ route('logout') }}" method="POST" class="dropdown-logout-form">
+                                @csrf
+                                <button type="submit" class="dropdown-item dropdown-logout-btn" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                        <path d="m16 17 5-5-5-5"/>
+                                        <path d="M21 12H9"/>
+                                    </svg>
+                                    <span>Keluar</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </header>
 
             <section class="page-content">
@@ -268,5 +332,34 @@
             </section>
         </main>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdownToggle = document.getElementById('userProfileToggle');
+            const dropdownContainer = document.getElementById('userProfileDropdown');
+
+            if (dropdownToggle && dropdownContainer) {
+                dropdownToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const isOpen = dropdownContainer.classList.toggle('open');
+                    dropdownToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!dropdownContainer.contains(e.target)) {
+                        dropdownContainer.classList.remove('open');
+                        dropdownToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && dropdownContainer.classList.contains('open')) {
+                        dropdownContainer.classList.remove('open');
+                        dropdownToggle.setAttribute('aria-expanded', 'false');
+                        dropdownToggle.focus();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

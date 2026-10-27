@@ -359,13 +359,60 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <div class="user-chip">
-                        <div class="user-avatar" style="background:#239b65; color:white; font-weight:700;">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                        </div>
-                        <div class="user-meta">
-                            <strong>{{ $user->name }}</strong>
-                            <span>Penyedia Proyek (UMKM)</span>
+                    <div class="topbar-user-dropdown" id="userProfileDropdown">
+                        <button type="button" class="user-profile-btn" id="userProfileToggle" aria-expanded="false" aria-haspopup="true">
+                            <div class="user-avatar-circle">
+                                @if ($profile->logo && file_exists(public_path($profile->logo)))
+                                    <img src="{{ asset($profile->logo) }}" alt="Avatar" id="topbarAvatarImg">
+                                @else
+                                    <span id="topbarAvatarLetter">{{ strtoupper(substr($profile->organization_name ?: $user->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
+                            <div class="user-profile-info">
+                                <span class="user-profile-name" id="topbarProfileName" title="{{ $profile->organization_name ?: $user->name }}">
+                                    {{ $profile->organization_name ?: $user->name }}
+                                </span>
+                                <span class="user-profile-role-badge">Penyedia Proyek</span>
+                            </div>
+                            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        <div class="user-dropdown-menu" id="userDropdownMenu" role="menu">
+                            <div class="dropdown-header">
+                                <div class="dropdown-header-avatar">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                                <div class="dropdown-header-details">
+                                    <strong class="dropdown-user-name" title="{{ $user->name }}">{{ $user->name }}</strong>
+                                    <span class="dropdown-user-email" title="{{ $user->email }}">{{ $user->email }}</span>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <a href="{{ route('penyedia.profile') }}" class="dropdown-item" role="menuitem">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                </svg>
+                                <span>Profil Organisasi</span>
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form action="{{ route('logout') }}" method="POST" class="dropdown-logout-form">
+                                @csrf
+                                <button type="submit" class="dropdown-item dropdown-logout-btn" role="menuitem">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                        <path d="m16 17 5-5-5-5"/>
+                                        <path d="M21 12H9"/>
+                                    </svg>
+                                    <span>Keluar</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -600,6 +647,33 @@
     </div>
 
     <script>
+        // Dropdown toggle logic
+        const dropdownToggle = document.getElementById('userProfileToggle');
+        const dropdownContainer = document.getElementById('userProfileDropdown');
+
+        if (dropdownToggle && dropdownContainer) {
+            dropdownToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = dropdownContainer.classList.toggle('open');
+                dropdownToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!dropdownContainer.contains(e.target)) {
+                    dropdownContainer.classList.remove('open');
+                    dropdownToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && dropdownContainer.classList.contains('open')) {
+                    dropdownContainer.classList.remove('open');
+                    dropdownToggle.setAttribute('aria-expanded', 'false');
+                    dropdownToggle.focus();
+                }
+            });
+        }
+
         // Real-time live preview update
         const orgNameInput = document.getElementById('organization_name');
         const industryInput = document.getElementById('industry_type');
@@ -615,15 +689,25 @@
         const cardPhone = document.getElementById('cardPhone');
         const logoPreviewBox = document.getElementById('logoPreviewBox');
         const cardAvatar = document.getElementById('cardAvatar');
+        const topbarProfileName = document.getElementById('topbarProfileName');
+        const topbarAvatarLetter = document.getElementById('topbarAvatarLetter');
+        const topbarAvatarCircle = document.querySelector('.topbar-user-dropdown .user-avatar-circle');
 
         if (orgNameInput && cardOrgName) {
             orgNameInput.addEventListener('input', (e) => {
                 const val = e.target.value.trim();
                 cardOrgName.textContent = val || 'Nama Organisasi';
+                if (topbarProfileName) {
+                    topbarProfileName.textContent = val || 'Nama Organisasi';
+                    topbarProfileName.setAttribute('title', val || 'Nama Organisasi');
+                }
                 if (!logoInput.files.length && !cardAvatar.querySelector('img')) {
                     const initial = (val || 'O').charAt(0).toUpperCase();
                     cardAvatar.textContent = initial;
                     logoPreviewBox.textContent = initial;
+                    if (topbarAvatarLetter) {
+                        topbarAvatarLetter.textContent = initial;
+                    }
                 }
             });
         }
@@ -661,6 +745,9 @@
                         const img = `<img src="${e.target.result}" alt="Logo">`;
                         logoPreviewBox.innerHTML = img;
                         cardAvatar.innerHTML = img;
+                        if (topbarAvatarCircle) {
+                            topbarAvatarCircle.innerHTML = img;
+                        }
                     };
                     reader.readAsDataURL(file);
                 }
